@@ -49,15 +49,14 @@ public class BuildGenerator : IOnController, IOnUpdate, IDisposable
         _flyingBuilding = pool.GetObjectFromPool().GetComponent<Building>();
     }
     
-    public Building StartBuildingHouses(BuildingConfig config)
+    public void StartBuildingHouses(BuildingConfig config)
     {
         if (_flyingBuilding != null)
         {
             _flyingBuilding.gameObject.SetActive(false);
         }
         _flyingBuilding = Object.Instantiate(config.BuildingPrefab.GetComponent<Building>());
-        return _flyingBuilding;
-
+        
     }
 
     public void OnUpdate(float deltaTime)

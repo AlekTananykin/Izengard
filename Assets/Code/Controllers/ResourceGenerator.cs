@@ -41,6 +41,10 @@ public class ResourceGenerator : IDisposable
         _generatorLevelController.SpawnResources += SpawnResources;
         _numOfVariant = i;
     }
+    
+    
+    
+ 
     private void SpawnResources(VoxelTile tile)
     {
         GetPossiblePlace(tile);
@@ -311,6 +315,7 @@ public class ResourceGenerator : IDisposable
         if (pos != null)
         {
             CreateMineralGameObject(resourceConfig, pos);
+            
             _installedBuildings[pos.x, pos.y] = _mineral;
             _possiblePlaceResource.Remove(pos);
         }
@@ -318,12 +323,12 @@ public class ResourceGenerator : IDisposable
 
     private void CreateMineralGameObject(MineralConfig mineralConfig, Vector2Int posistion)
     {
-        GameObject currentMineral = Object.Instantiate(mineralConfig.Prefab);
-        currentMineral.transform.position = new Vector3(posistion.x, 0.1f, posistion.y);
-        currentMineral.transform.rotation = Quaternion.identity;
-        Mineral _tempMineral = currentMineral.AddComponent<Mineral>();
+        GameObject _gameObject = Object.Instantiate(mineralConfig.Prefab);
+        _gameObject.transform.position = new Vector3(posistion.x, 0.1f, posistion.y);
+        _gameObject.transform.rotation = Quaternion.identity;
+        Mineral _tempMineral = _gameObject.AddComponent<Mineral>();
         _tempMineral.SetModelOfMine(mineralConfig);
-        BoxCollider _boxCollider = currentMineral.AddComponent<BoxCollider>();
+        BoxCollider _boxCollider = _gameObject.AddComponent<BoxCollider>();
         _mineral = _tempMineral;
     }
 

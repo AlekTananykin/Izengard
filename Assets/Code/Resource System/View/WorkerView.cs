@@ -9,12 +9,19 @@ public class WorkerView : UnitView
     private ResourceHolder _Resholder;
     [SerializeField]
     private ItemСarrierHolder _Itemholder;
-
-    [SerializeField] public ResourceType AssignedResource;
+    [SerializeField]
     
     private float _currentMineTime;
 
-    public void MineResource (ResourceMine mine,float time)
+    public void GetResurseOutOfHolder(WareHouseBuildModel model)
+    {
+        model.AddInStock(_Resholder);
+    }
+    public void GetItemOutOfHolder (WareHouseBuildModel model)
+    {
+        model.AddInStock(_Itemholder);
+    }
+    public void MineResurse (ResourceMine mine,float time)
     {
         _currentMineTime += time;
         if (_currentMineTime>=mine.ExtractionTime)

@@ -84,7 +84,6 @@ MonoBehaviour:
   _tileConfig: {fileID: 11400000, guid: 9565a228ea7f390448b26a5a1b3ef329, type: 2}
   _dotSpawns: {fileID: 6124803917790517481}
   _curBuildingConfigs: []
-  _workers: []
 --- !u!65 &-7352286412949628950
 BoxCollider:
   m_ObjectHideFlags: 0

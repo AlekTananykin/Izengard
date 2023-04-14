@@ -56,9 +56,8 @@ public class BuildBuildings
     // {
     //     _buildGenerator.StartPlacingBuild(_pools[buildingConfig]);
     // }
-    public Building BuildBuilding1(BuildingConfig buildingConfig)
+    public void BuildBuilding1(BuildingConfig buildingConfig)
     {
-        var buiding = _buildGenerator.StartBuildingHouses(buildingConfig);
-        return buiding;
+        _buildGenerator.StartBuildingHouses(buildingConfig);
     }
 }

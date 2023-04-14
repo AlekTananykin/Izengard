@@ -13,17 +13,18 @@ namespace Views.BuildBuildingsUI
 {
     public class BuildingsUIView : MonoBehaviour
     {
+        [field: SerializeField] public Button BuyDefender { get; private set; } // add Nikolay Vasilev
         [field: SerializeField] public Button CloseMenuButton { get; private set; }
         [field: SerializeField] public Button PrefabButtonClear { get; private set; }
-        [field: SerializeField] public GameObject BuildingInfo { get; private set; }
+        [field: SerializeField] public Button PrefabButtonInfo { get; private set; }
         [field: SerializeField] public Transform[] Windows { get; private set; }
         [field: SerializeField] public Transform BuildButtonsHolder { get; set; }
         [field: SerializeField] public Transform ByBuildButtonsHolder { get; set; }
 
         [SerializeField] private Button _buyPrefabButton;
         public Dictionary<BuildingConfig, Button> ButtonsInMenu = new Dictionary<BuildingConfig, Button>();
-        public Dictionary<GameObject, BuildingConfig> DestroyBuildingInfo = new Dictionary<GameObject, BuildingConfig>();
         public List<BuildingConfig> ButtonsBuy = new List<BuildingConfig>();
+        public List<Button> DestroyButtonsBuy = new List<Button>();
 
 
         public void Init(List<BuildingConfig> models)
@@ -36,20 +37,15 @@ namespace Views.BuildBuildingsUI
             }
         }
 
-        public BuildingUIInfo CreateBuildingInfo(BuildingConfig config, Dictionary<GameObject, BuildingConfig> buildingConfigs, TileUIController controller)
+        public void CreateBuildingInfo(BuildingConfig config)
         {
-            var button = Instantiate(BuildingInfo, ByBuildButtonsHolder);
+            var button = Instantiate(PrefabButtonInfo, ByBuildButtonsHolder);
             var view = button.GetComponent<BuildingUIInfo>();
-            
             view.Icon.sprite = config.Icon;
             view.Type.text = config.BuildingType.ToString();
-            view.Types = config.BuildingType;
-            view.UnitsBusy.text = view.Units +"/5";
-            DestroyBuildingInfo.Add(button, config);
-            view.DestroyBuildingInfo.onClick.AddListener((() => DestroyBuildingAndInfo(buildingConfigs, view, controller.View)));
-            view.PlusUnit.onClick.AddListener((() => view.Hiring(true, controller)));
-            view.MinusUnit.onClick.AddListener((() => view.Hiring(false, controller)));
-            return view;
+            view.UnitsBusy.text = "0/5 Units";
+            DestroyButtonsBuy.Add(button);
+
         }
 
         public void Deinit()
@@ -64,32 +60,12 @@ namespace Views.BuildBuildingsUI
 
         public void ClearButtonsUIBuy()
         {
-            foreach (var kvp in DestroyBuildingInfo)
+            foreach (var kvp in DestroyButtonsBuy)
             {
-                Destroy(kvp.Key.gameObject);
+                Destroy(kvp.gameObject);
             }
-            DestroyBuildingInfo.Clear();
+            DestroyButtonsBuy.Clear();
             ButtonsBuy.Clear();
-        }
-
-        public void DestroyBuildingAndInfo(Dictionary<GameObject, BuildingConfig> buildingConfigs, BuildingUIInfo Button, TileView view)
-        {
-            foreach (var kvp in buildingConfigs)
-            {
-                if (kvp.Value.BuildingType == Button.Types)
-                {
-                    Button.DestroyBuildingInfo.onClick.RemoveAllListeners();
-                    Button.PlusUnit.onClick.RemoveAllListeners();
-                    Button.MinusUnit.onClick.RemoveAllListeners();
-                    buildingConfigs.Remove(kvp.Key);
-                    DestroyBuildingInfo.Remove(Button.gameObject);
-                    view.FloodedBuildings.Remove(kvp.Key.GetComponent<Building>());
-                    Destroy(kvp.Key.gameObject);
-                    Destroy(Button.gameObject);
-                    break;
-                }
-                
-            }
         }
 
         private void CreateButtonUI(BuildingConfig buildingConfig, Button button)

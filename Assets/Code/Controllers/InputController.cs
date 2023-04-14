@@ -11,12 +11,12 @@ namespace Controllers
 {
     public class InputController : IOnController, IOnUpdate
     {
-        // private BuildingResursesUIController _rescontoller;
+        private BuildingResursesUIController _rescontoller;
         private TileUIController _tileUIController;
 
-        public InputController(TileUIController tileUIController)
+        public InputController(BuildingResursesUIController rescontoller, TileUIController tileUIController)
         {
-            // _rescontoller = rescontoller;
+            _rescontoller = rescontoller;
             _tileUIController = tileUIController;
         }
 

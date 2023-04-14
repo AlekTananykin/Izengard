@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using Code.TileSystem;
 using Controllers.BuildBuildingsUI;
 using ResourceSystem;
-using ResourceSystem.SupportClases;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UI;
 using Views.BuildBuildingsUI;
 using Object = UnityEngine.Object;
@@ -20,9 +18,8 @@ namespace Code.TileSystem
         private BaseCenterText _centerText;
         private BuildingsUIView _buildingsUIView;
         private BuildGenerator _generator;
-        private GlobalResourceStock _stock;
-        private List<BuildingConfig> _buildingConfigs;
-        private Dictionary<GameObject, BuildingConfig> _destroyBuilding = new Dictionary<GameObject, BuildingConfig>();
+        private GlobalResorceStock _stock;
+        private List<BuildingConfig> BuildingConfigs;
         private BuildBuildings _buildBuildings;
         private int _currentlvl;
         private int _eightQuantity;
@@ -34,10 +31,9 @@ namespace Code.TileSystem
         public int CurrentLVL => _currentlvl;
         public TileView View => _view;
         public BuildingsUIView BuildingsUIView => _buildingsUIView;
-        public Dictionary<GameObject, BuildingConfig> DestroyBuilding => _destroyBuilding;
-
+        
         public TileUIController(TileList tileList, TileUIView uiView, BaseCenterText centerText, BuildingsUIView buildingsUIView, 
-            BuildGenerator buildGenerator, GlobalResourceStock stock)
+            BuildGenerator buildGenerator, GlobalResorceStock stock)
         {
             _centerText = centerText;
             _list = tileList;
@@ -45,9 +41,6 @@ namespace Code.TileSystem
             _generator = buildGenerator;
             _stock = stock;
             _buildingsUIView = buildingsUIView;
-            
-            _stock.GlobalResStock.HoldersInStock.Find(x => x.ObjectInHolder.ResourceType == ResourceType.Wood)
-                .CurrentValue = 100;
             
             OpenMenu(false);
         }
@@ -62,7 +55,7 @@ namespace Code.TileSystem
             view.CreateButtonsUIBuy(this);
             _uiView.Upgrade.onClick.AddListener(() => view.LVLUp(this));
             UpdateInfo(view.TileConfig);
-            ADDBuildUI(view.CurrBuildingConfigs, view);
+            ADDBuildUI(view.CurrBuildingConfigs);
         }
         /// <summary>
         /// Загрузка всей информации на тайл
@@ -73,68 +66,65 @@ namespace Code.TileSystem
             _eightQuantity = _view.EightQuantity;
             _units = config.MaxUnits;
             _currentlvl = config.TileLvl.GetHashCode();
-            _uiView.UnitMax.text = _eightQuantity + "/"+ config.MaxUnits + " Units";
+            _uiView.UnitMax.text = "0/"+ config.MaxUnits + " Units";
             _uiView.Icon.sprite = config.IconTile;
         }
-        public void ADDBuildUI(List<BuildingConfig> configs, TileView view)
+        public void ADDBuildUI(List<BuildingConfig> configs)
         {
             _buildingsUIView.Deinit();
-            _buildingConfigs = configs;
-            UpdateBuildings(view);
+            BuildingConfigs = configs;
+            UpdateBuildings();
             foreach (var kvp in _buildingsUIView.ButtonsInMenu)
             {
                 kvp.Value.onClick.AddListener((() => _view.CreateButtonsUIBuy(this)));
             }
         }
         
-        public void UpdateBuildings(TileView view)
+        public void UpdateBuildings()
         {
-            _buildingsUIView.Init(_buildingConfigs);
+            _buildBuildings = new BuildBuildings(BuildingConfigs, _generator);
+            _buildingsUIView.Init(BuildingConfigs);
             
+
             foreach (var kvp in _buildingsUIView.ButtonsInMenu)
             {
-                kvp.Value.onClick.AddListener(() => BuildBuilding(kvp.Key, view));
+                foreach (var config in BuildingConfigs)
+                {
+                    kvp.Value.onClick.AddListener(() => CheckingForAResource(_stock.GlobalResStock, _centerText, config, kvp.Key, _buildBuildings));
+                }
+                
+
             }
         }
         /// <summary>
         /// Проверяет на наличие ресурса если он есть ставим здание.
         /// </summary>
-        private void BuildBuilding(BuildingConfig buildingConfig, TileView view)
+        public void CheckingForAResource(ResurseStock stock, BaseCenterText CenterText, BuildingConfig config, BuildingConfig buildingConfig, BuildBuildings buildings)
         {
-            if (!IsResourcesEnough(buildingConfig))
+            if (config == buildingConfig)
             {
-                return;
-            }
-            
-            foreach (var resourcePrice in buildingConfig.BuildingCost)
-            {
-                var resourceHolder = _stock.GlobalResStock.HoldersInStock.Find(x => 
-                    x.ObjectInHolder.ResourceType == resourcePrice.ResourceType);
-                resourceHolder.CurrentValue -= resourcePrice.Cost;
-            }
-
-            var building = _generator.StartBuildingHouses(buildingConfig);
-            _destroyBuilding.Add(building.gameObject, buildingConfig);
-            _buildingsUIView.ButtonsBuy.Add(buildingConfig);
-            view.FloodedBuildings.Add(building);
-        }
-        
-        private bool IsResourcesEnough(BuildingConfig buildingConfig)
-        {
-            foreach (ResourcePriceModel resourcePriceModel in buildingConfig.BuildingCost)
-            {
-                if (_stock.GlobalResStock.GetResursesCount(resourcePriceModel.ResourceType) < resourcePriceModel.Cost)
+                foreach (var cost in config.BuildingCost)
                 {
-                    _centerText.NotificationUI("you do not have enough resources to buy", 1000);
-                    return false;
+                    var t = stock.HoldersInStock.Find(x => x.ObjectInHolder.ResourceType == cost.ResourceType);
+                    if (t.CurrentValue >= cost.Cost)
+                    {
+                        t.CurrentValue -= cost.Cost;
+                        buildings.BuildBuilding1(buildingConfig);
+                        _buildingsUIView.ButtonsBuy.Add(buildingConfig);
+                    }
+                    else
+                    {
+                        CenterText.NotificationUI("you do not have enough resources to buy", 1000);
+                    }
+
+                
                 }
             }
-            return true;
         }
-        
+
         public void LevelCheck()
         {
-            if (CurrentLVL > _buildingsUIView.DestroyBuildingInfo.Count)
+            if (CurrentLVL > _buildingsUIView.DestroyButtonsBuy.Count)
             {
                 _buildingsUIView.PrefabButtonClear.gameObject.SetActive(true);
             }
@@ -146,7 +136,10 @@ namespace Code.TileSystem
 
         private void OnOpenMenuButton() => OpenMenu(true);
 
-        private void OnCloseMenuButton() => OpenMenu(false);
+        private void OnCloseMenuButton()
+        {
+            OpenMenu(false);
+        }
 
         public void OpenMenu(bool isOpen)
         {

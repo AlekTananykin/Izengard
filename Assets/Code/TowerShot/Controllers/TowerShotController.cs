@@ -60,7 +60,9 @@ namespace Code.TowerShot
 			
 			if (IsTargert == true) _target = Enemys[index];
 			if(_target.transform != null) NearestObject(_target.transform);
-		}
+
+
+        }
 
 	}
 	public void OnStart()

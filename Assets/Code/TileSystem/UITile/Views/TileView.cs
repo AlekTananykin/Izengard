@@ -13,21 +13,16 @@ namespace Code.TileSystem
         [SerializeField] private TileConfig _tileConfig;
         [SerializeField] private DotSpawns _dotSpawns;
         [SerializeField] private List<BuildingConfig> _curBuildingConfigs;
-        [SerializeField] private List<Building> _floodedBuildings = new List<Building>();
+        
         private List<BuildingConfig> _buttonsUIBuy = new List<BuildingConfig>();
-        public List<WorkerView> _workers = new List<WorkerView>();
         private int _eightQuantity;
+
         private TileConfig _saveTileConfig;
 
         public TileConfig TileConfig => _tileConfig;
         public List<BuildingConfig> CurrBuildingConfigs => _curBuildingConfigs;
-        public List<Building> FloodedBuildings => _floodedBuildings;
-        public int EightQuantity
-        {
-            get => _eightQuantity;
-            set => _eightQuantity = value;
-        }
 
+        public int EightQuantity => _eightQuantity;
         public DotSpawns DotSpawns => _dotSpawns;
 
         private void Start()
@@ -46,7 +41,7 @@ namespace Code.TileSystem
                 _tileConfig = _saveTileConfig;
                 _curBuildingConfigs.AddRange(_saveTileConfig.BuildingTirs);
                 controller.UpdateInfo(_saveTileConfig);
-                controller.ADDBuildUI(_curBuildingConfigs, this);
+                controller.ADDBuildUI(_curBuildingConfigs);
             }else controller.CenterText.NotificationUI("Max LVL", 1000);
         }
 
@@ -56,8 +51,7 @@ namespace Code.TileSystem
             controller.BuildingsUIView.ClearButtonsUIBuy();
             foreach (var kvp in _buttonsUIBuy)
             {
-                var info = controller.BuildingsUIView.CreateBuildingInfo(kvp, controller.DestroyBuilding, controller);
-                // _workers.AddRange(info.Type);
+                controller.BuildingsUIView.CreateBuildingInfo(kvp);
             }
         }
     }

@@ -17,7 +17,7 @@ public class GameInit
 {
     public GameInit(Controller controller, GameConfig gameConfig, RightUI rightUI, 
         Transform btnParents, LeftUI leftUI, BottonUI bottonUI,
-        BuildingsUI buildingsUI, GlobalResourceStock globalResStock, TopResUiVew topResUI,
+        BuildingsUI buildingsUI, GlobalResorceStock globalResStock, TopResUiVew topResUI,
         BuildingList buildingList, EndGameScreen endGameScreen, TowerShotConfig towerShotConfig, 
         BuyItemScreenView buyItemScreenView, HireSystemView hireSystemView , EquipScreenView equipScreenView, 
         Camera camera, BaseCenterText centerText, TileUIView tileUIView, TileList tileList)
@@ -38,7 +38,7 @@ public class GameInit
         var waveController = new WaveController(levelGenerator, rightUI, btnParents, gameConfig, centerText);
         var endGameController = new EndGameController(endGameScreen, levelGenerator);
         
-        var globalResController = new MainResourcesController(globalResStock, topResUI);
+        var globalResController = new MainResursesController(globalResStock, topResUI);
         //var buildController = new BuildGenerator(gameConfig, leftUI, layerMask, outPostSpawner);
         if (!gameConfig.ChangeVariant)
         {
@@ -49,7 +49,7 @@ public class GameInit
             new ResourceGenerator(buildController.Buildings, gameConfig, levelGenerator, 2);
         }
         var tilecontroller = new TileUIController(tileList, tileUIView, centerText, bottonUI.BuildingMenu, buildController, globalResStock);
-        var inputController = new InputController(/*buildingController, */tilecontroller);
+        var inputController = new InputController(buildingController, tilecontroller);
 
 
         controller.Add(btnConroller);
@@ -70,5 +70,8 @@ public class GameInit
 
         var testDummyTargetController = new TestDummyTargetController(levelGenerator, gameConfig.TestBuilding);
         controller.Add(testDummyTargetController);
+
+        var defendersController = new DefendersController(tilecontroller,gameConfig.DefenderUnit);
+        controller.Add(defendersController);
     }
 }

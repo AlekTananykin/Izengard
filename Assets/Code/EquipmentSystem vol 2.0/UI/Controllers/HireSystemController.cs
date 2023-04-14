@@ -11,11 +11,11 @@ namespace EquipmentSystem
     {
     private HireSystemView _view;
     private BaseELFUnitFactory _factory;
-    public GlobalResourceStock _globalResStock;
+    public GlobalResorceStock _globalResStock;
     private Transform _whereToSpawn;
     private GeneratorLevelController _levelController;
 
-    public HireSystemController(GlobalResourceStock glStock, BuyItemScreenView buyView,
+    public HireSystemController(GlobalResorceStock glStock, BuyItemScreenView buyView,
         EquipScreenController eqScreenController, HireSystemView view, GeneratorLevelController levelController)
     {
         view.BuyItemScreen = buyView;

@@ -6,8 +6,6 @@ public class Building : BaseBuildAndResources
     [SerializeField] private Renderer _renderer;
     [SerializeField] private NavMeshLink _navMeshLink;
 
-    public string BuildingID;
-
     public void SetAvailableToInstant(bool available)
     {
         if (available)
